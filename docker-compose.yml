@@ -1,0 +1,39 @@
+version: '3'
+services:
+
+  mosquitto:
+    image: vimagick/mosquitto
+    ports:
+      - '1883:1883'
+      - '8080:8080'
+      - '8883:8883'
+    volumes:
+      - './mosquitto/mosquitto.conf:/etc/mosquitto/mosquitto.conf'
+    networks:
+      oyster-network:
+  
+  oyster-guardian:
+    build:
+      context: ./go
+      dockerfile: Dockerfile
+    networks:
+      oyster-network:
+
+  mongo:
+    image: 'mongo'
+    environment:
+      - MONGO_INITDB_DATABASE=oyster-guardian
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - ./mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - mongo-volume-container:/data/db
+    ports:
+      - '27017:27017'
+    networks:
+      oyster-network:
+
+networks:
+  oyster-network:
+volumes:
+  mongo-volume-container:

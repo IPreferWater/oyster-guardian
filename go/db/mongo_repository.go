@@ -3,8 +3,8 @@ package db
 import (
 	"context"
 	"fmt"
-	"os"
 
+	"github.com/IPreferWater/oyster-guardian/model"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,18 +15,23 @@ var (
 )
 
 var (
-	user         = os.Getenv("DB_USER")
+	/*user         = os.Getenv("DB_USER")
 	password     = os.Getenv("DB_PASSWORD")
 	host         = os.Getenv("DB_HOST")
 	port         = os.Getenv("DB_PORT")
-	databaseName = os.Getenv("DB_NAME")
+	databaseName = os.Getenv("DB_NAME")*/
+	user         = "user"
+	password     = "password"
+	host         = "localhost"
+	port         = "27017"
+	databaseName = "oyster-guardian"
 )
 
 type MongoRepository struct {
 	client *mongo.Client
 }
 
-func InitPostgresRepo() {
+func InitMongoRepo() {
 
 	dbURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/%s", user, password, host, port, databaseName)
 	clientOptions := options.Client().ApplyURI(dbURI)
@@ -46,11 +51,14 @@ func InitPostgresRepo() {
 	log.Info("database connected")
 
 	Repo = MongoRepository{
-		client:    db,
+		client: db,
 	}
 
 }
 
-func (p MongoRepository) Todo() error {
-	return nil
+func (p MongoRepository) InsertDetected(detected model.Detected) error {
+
+	db := db.Database(databaseName).Collection("detected")
+	_, err := db.InsertOne(context.Background(), detected)	
+	return err
 }

@@ -19,7 +19,8 @@ import (
 const (
 	TCP            = "tcp"
 	SSL            = "ssl"
-	TOPIC_DETECTED = "oyster-guardian/random"
+	TOPIC_DETECTED = "oyster-guardian/detected"
+	TOPIC_THREAT   = "oyster-guardian/threat"
 )
 
 var (
@@ -36,8 +37,12 @@ var (
 	username = "username"
 	password = "password"
 
-	MqttClient MQTT.Client
+	//MqttClient MQTT.Client
 )
+
+type MqttStream struct {
+	client MQTT.Client
+}
 
 func InitMqtt() {
 	c := make(chan os.Signal, 1)
@@ -57,10 +62,16 @@ func InitMqtt() {
 		if token := c.Subscribe(TOPIC_DETECTED, byte(2), subscribeTopicDetected); token.Wait() && token.Error() != nil {
 			panic(token.Error())
 		}
+
+		if token := c.Subscribe(TOPIC_THREAT, byte(2), subscribeTopicThreat); token.Wait() && token.Error() != nil {
+			panic(token.Error())
+		}
 	}
 
 	client := MQTT.NewClient(connOpts)
-	MqttClient = client
+	service.Stream = MqttStream{
+		client: client,
+	}
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		log.Errorf("can't connect MQTT", token.Error())
 		time.Sleep(5 * time.Second)
@@ -113,11 +124,22 @@ func connectionLostHandler(client MQTT.Client, err error) {
 
 func subscribeTopicDetected(client MQTT.Client, message MQTT.Message) {
 	payload := string(message.Payload())
-	log.Debug(payload)
-	service.PayloadFromInput(payload)
+	log.Infof("topic %s consume message %s", TOPIC_DETECTED, payload)
+	service.HandleTopicDetected(payload)
 }
 
-func PublishTopicDetected(payload string) error {
-	token := MqttClient.Publish(TOPIC_DETECTED, byte(2), true, payload)
+func subscribeTopicThreat(client MQTT.Client, message MQTT.Message) {
+	payload := string(message.Payload())
+	log.Infof("topic %s consume message %s", TOPIC_THREAT, payload)
+	service.HandleTopicThreat(payload)
+}
+
+func (p MqttStream) PublishTopicDetected(payload string) error {
+	token := p.client.Publish(TOPIC_DETECTED, byte(2), true, payload)
+	return token.Error()
+}
+
+func (p MqttStream) PublishTopicThreat(payload string) error {
+	token := p.client.Publish(TOPIC_THREAT, byte(2), true, payload)
 	return token.Error()
 }

@@ -1,11 +1,11 @@
 package model
 
 type Detected struct {
-	SensorName    string        `json:"sensorName" bson:"_id"`
-	X             float64       `json:"x" bson:"x"`
-	Y             float64       `json:"y" bson:"y"`
-	ImageDetected ImageDetected `json:"imageDetected" bson:"imageDetected"`
-	Timestamp     string        `json:"timestamp" bson:"timestamp"`
+	SensorName string  `json:"sensorName" bson:"sensorName"`
+	X          float64 `json:"x" bson:"x"`
+	Y          float64 `json:"y" bson:"y"`
+	ImageUrl   string  `json:"imageUrl" bson:"imageUrl"`
+	Timestamp  string  `json:"timestamp" bson:"timestamp"`
 }
 
 type ImageDetected struct {
@@ -15,7 +15,7 @@ type ImageDetected struct {
 	Url          string  `json:"url" bson:"url"`
 }
 
-/*type TypeDetected int
+type TypeDetected int
 
 const (
 	Car TypeDetected = iota
@@ -37,4 +37,3 @@ func (t TypeDetected) String() string {
 	}
 	return "unknown"
 }
-*/

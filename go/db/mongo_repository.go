@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/IPreferWater/oyster-guardian/model"
+	"github.com/IPreferWater/oyster-guardian/service"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -50,15 +51,14 @@ func InitMongoRepo() {
 	}
 	log.Info("database connected")
 
-	Repo = MongoRepository{
+	service.Repo = MongoRepository{
 		client: db,
 	}
-
 }
 
 func (p MongoRepository) InsertDetected(detected model.Detected) error {
 
 	db := db.Database(databaseName).Collection("detected")
-	_, err := db.InsertOne(context.Background(), detected)	
+	_, err := db.InsertOne(context.Background(), detected)
 	return err
 }

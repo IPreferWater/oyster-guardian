@@ -50,8 +50,8 @@ func InitMongoRepo() {
 		panic(err)
 	}
 	log.Info("database connected")
-
-	service.Repo = MongoRepository{
+	
+	service.Repository = MongoRepository{
 		client: db,
 	}
 }

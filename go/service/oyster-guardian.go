@@ -22,14 +22,13 @@ func HandleTopicDetected(payload string) {
 		return
 	}
 	if threatPoints > 20 {
-		Stream.PublishTopicThreat("todo")
+		Stream.PublishTopicThreat(payload)
 	}
 	Repository.InsertDetected(detected)
 }
 
 func HandleTopicThreat(payload string) {
-	//TODO
-	log.Infof("ALERT ! There might be a threat on your farm on the location")
+	log.Infof("ALERT ! There might be a threat on your farm on the location => %s", payload)
 }
 
 func getThreatPoints(detected model.Detected, typeDetected model.TypeDetected) (int, error) {
@@ -49,6 +48,9 @@ func getThreatPoints(detected model.Detected, typeDetected model.TypeDetected) (
 		// having people in this time slot is strange
 		if hour > 22 || hour < 6 {
 			points += 100
+		}else {
+		// people without abilitation is strange, but could be hikers at this time slot
+			points += 30
 		}
 	}
 
